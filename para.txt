@@ -1,1 +1,1 @@
-“At LumiSkin, we believe skincare should be simple, effective, and kind to your skin. That’s why every product is thoughtfully crafted with clean botanical extracts and proven actives to nourish, protect, and restore your natural glow. From gentle cleansers to hydrating serums, our formulas are designed for all skin types — helping you feel confident in your skin, every single day.”
+ In short: It’s a basic task management web app that helps users organize their work with priorities and deadlines.
