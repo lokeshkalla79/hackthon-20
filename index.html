@@ -3,53 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sunscreen Product</title>
+  <title>Advanced To-Do List App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      margin: 0;
-      padding: 20px;
+      background: #f4f6f7;
       text-align: center;
+      padding: 40px;
     }
-    .product-card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      max-width: 300px;
-      margin: auto;
-      padding: 20px;
-    }
-    .product-card img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .product-card h2 {
-      margin: 15px 0 10px;
-      color: #ff7f50;
-    }
-    .price {
-      font-size: 18px;
+    h1 {
       color: #333;
-      font-weight: bold;
     }
-    .buy-btn {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #ff7f50;
-      color: #fff;
-      text-decoration: none;
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    input, select {
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .buy-btn:hover {
-      background: #e5673c;
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .delete-btn {
+      background: red;
+    }
+    .delete-btn:hover {
+      background: darkred;
+    }
+    .clear-btn {
+      background: #ff9800;
+    }
+    .clear-btn:hover {
+      background: #e68900;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+    li {
+      background: #f9f9f9;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    li.done span {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .priority-low { color: green; font-weight: bold; }
+    .priority-medium { color: orange; font-weight: bold; }
+    .priority-high { color: red; font-weight: bold; }
+    .task-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .task-title {
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="product-card">
-  
-    <h2>Sunscreen SPF 50</h2>
-    <p>Protects your skin from harmful UV rays. Water-res
+  <h1>📝 To-Do List App</h1>
+  <div class="container">
+    <input type="text" id="taskInput" placeholder="Enter new task">
+    <input type="date" id="dueDate">
+    <select id="priority">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+    <button onclick="addTask()">Add</button>
+    <input type="text" id="searchBar" placeholder="Search task..." onkeyup="searchTask()">
+    <ul id="taskList"></ul>
+    <button class="clear-btn" onclick="clearAll()">Clear All</button>
+  </div>
 
+  <script>
+    let taskList = document.getElementById("taskList");
+
+    // Load tasks from localStorage
+    window.onload = function() {
+      let savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      savedTasks.forEach(task => renderTask(task));
+    };
+
+    function addTask() {
+      let input = document.getElementById("taskInput");
+      let dueDate = document.getElementById("dueDate").value;
+      let priority = document.getElementById("priority").value;
+      let task = input.value.trim();
+
+      if (task === "") return alert("Please enter a task!");
+
+      let taskObj = { text: task, dueDate, priority, done: false };
+      saveTask(taskObj);
+      renderTask(taskObj);
+      input.value = "";
+      document.getElementById("dueDate").value = "";
+    }
+
+    function renderTask(taskObj) {
+      let li = document.createElement("li");
+      li.innerHTML = `
+        <div class="task-info">
+          <span class="task-title" onclick="toggleDone(this)">${taskObj.text}</span>
+          <small>Due: ${taskObj.dueDate || "No date"} | 
+            <span class="priority-${taskObj.priority}">${taskObj.priority.toUpperCase()}</span>
+          </small>
+        </div>
+        <button class="delete-btn" onclick="deleteTask(this)">X</button>
+      `;
+      if (taskObj.done) li.classList.add("done");
+      taskList.appendChild(li);
+    }
+
+    function toggleDone(element) {
+      let li = element.closest("li");
+      li.classList.toggle("done");
+      updateLocalStorage();
+    }
+
+    function deleteTask(button) {
+      button.parentElement.remove();
+      updateLocalStorage();
+    }
+
+    function clearAll() {
+      taskList.innerHTML = "";
+      localStorage.removeItem("tasks");
+    }
+
+    function searchTask() {
+      let filter = document.getElementById("searchBar").value.toLowerCase();
+      let tasks = taskList.getElementsByTagName("li");
+      for (let i = 0; i < tasks.length; i++) {
+        let text = tasks[i].innerText.toLowerCase();
+        tasks[i].style.display = text.includes(filter) ? "" : "none";
+      }
+    }
+
+    function saveTask(taskObj) {
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.push(taskObj);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function updateLocalStorage() {
+      let tasks = [];
+      taskList.querySelectorAll("li").forEach(li => {
+        let text = li.querySelector(".task-title").innerText;
+        let dueDate = li.querySelector("small").innerText.split("|")[0].replace("Due: ", "").trim();
+        let priority = li.querySelector("span").innerText.toLowerCase();
+        tasks.push({ text, dueDate, priority, done: li.classList.contains("done") });
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
